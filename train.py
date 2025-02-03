@@ -14,14 +14,20 @@ import numpy as np
 # Quality of life
 from tqdm import tqdm
 
+# Hyperparams
+epochs = 30
+learning_rate = 0.001
+batch_size = 128
+sequence_length = 16
+criterion = nn.MSELoss()  # Mean Squared Error for regression tasks
+
 # Load the saved data
-X = np.load('data/notes.npy', allow_pickle=True)
+X = np.load('data/normalized_notes.npy', allow_pickle=True)
 print(X[:4])
 
 # Instantiate the dataset and DataLoader
-sequence_length = 16
 dataset = MusicSequenceDataset(X, sequence_length=sequence_length)
-dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 print(dataset[0])
 
 # Assuming you have your DataLoader as `dataloader`
@@ -33,14 +39,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # Initialize the model and move it to the correct device
 model = MusicLSTMModel()
 model = model.to(device)
-
-epochs = 3
-learning_rate = 0.001
-criterion = nn.MSELoss()  # Mean Squared Error for regression tasks
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-# Example of using a DataLoader (ensure it's initialized correctly elsewhere)
-# train_loader = DataLoader(...)
 
 for epoch in range(epochs):
     model.train()  # Set the model to training mode
@@ -69,4 +68,4 @@ for epoch in range(epochs):
     # Print the loss for this epoch
     print(f"Epoch [{epoch+1}/{epochs}], Loss: {running_loss / len(dataloader):.4f}")
 
-torch.save(model.state_dict(), f"model_epoch_{epoch+1}.pth")
+torch.save(model.state_dict(), f"models/model.pth")
